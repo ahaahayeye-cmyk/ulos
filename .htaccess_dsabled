@@ -1,0 +1,32 @@
+# Simple Apache Configuration for Toko Ulos Online
+
+# Enable URL Rewriting
+RewriteEngine On
+
+# Prevent directory browsing
+Options -Indexes
+
+# Custom Error Pages (optional - comment out if causing issues)
+# ErrorDocument 404 /Ulos/404.php
+# ErrorDocument 500 /Ulos/500.php
+
+# Hide sensitive files
+<Files "config.php">
+    Require all denied
+</Files>
+
+<Files "*.log">
+    Require all denied
+</Files>
+
+# Prevent access to .htaccess
+<Files ".htaccess">
+    Require all denied
+</Files>
+
+# Basic security for uploads directory
+<Directory "uploads">
+    <FilesMatch "\.php$">
+        Require all denied
+    </FilesMatch>
+</Directory>

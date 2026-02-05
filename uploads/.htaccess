@@ -1,0 +1,11 @@
+# Izinkan akses ke gambar
+<Files ~ "\.(jpg|jpeg|png|gif|svg|webp)$">
+    Order allow,deny
+    Allow from all
+</Files>
+
+# Blokir akses ke file PHP untuk keamanan
+<Files ~ "\.php$">
+    Order deny,allow
+    Deny from all
+</Files>
