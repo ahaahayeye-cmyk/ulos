@@ -257,3 +257,10 @@ Stack trace:
 [19-Feb-2026 16:29:42 Europe/Berlin] PHP Warning:  Undefined variable $category_id in C:\xampp\htdocs\Ulos\products.php on line 139
 [19-Feb-2026 16:29:42 Europe/Berlin] PHP Warning:  Undefined variable $category_id in C:\xampp\htdocs\Ulos\products.php on line 139
 [19-Feb-2026 16:29:42 Europe/Berlin] PHP Warning:  Undefined variable $category_id in C:\xampp\htdocs\Ulos\products.php on line 139
+[19-Feb-2026 16:58:42 Europe/Berlin] PHP Warning:  Undefined variable $category_id in C:\xampp\htdocs\Ulos\products.php on line 139
+[19-Feb-2026 16:58:42 Europe/Berlin] PHP Warning:  Undefined variable $category_id in C:\xampp\htdocs\Ulos\products.php on line 139
+[19-Feb-2026 16:58:42 Europe/Berlin] PHP Warning:  Undefined variable $category_id in C:\xampp\htdocs\Ulos\products.php on line 139
+[19-Feb-2026 16:58:42 Europe/Berlin] PHP Warning:  Undefined variable $category_id in C:\xampp\htdocs\Ulos\products.php on line 139
+[19-Feb-2026 16:58:42 Europe/Berlin] PHP Warning:  Undefined variable $category_id in C:\xampp\htdocs\Ulos\products.php on line 139
+[19-Feb-2026 16:59:03 Europe/Berlin] Kirimi - Pesan ke customer (628887863852): Status 200
+[19-Feb-2026 16:59:06 Europe/Berlin] Kirimi - Pesan ke admin (6281317975623): Status 200

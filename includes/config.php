@@ -12,7 +12,7 @@ define('DB_PASS', '');
 define('DB_NAME', 'ulos_ecommerce');
 
 // Konfigurasi Aplikasi
-define('SITE_URL', 'http://localhost/ulos');
+define('SITE_URL', 'https://geraitanobatak.com');
 define('SITE_NAME', 'Gerai Tano Batak');
 define('ADMIN_EMAIL', 'admin@ulos.com');
 define('WHATSAPP_NUMBER', '6281317975623'); // Nomor WhatsApp tanpa tanda +

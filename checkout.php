@@ -141,8 +141,57 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $message .= "Cek status pesanan Anda di: " . SITE_URL . "orders.php\n\n";
             $message .= "Terima kasih! 🙏";
             
-            // Kirim pesan WhatsApp
-            sendKirimiMessage($phone_number, $message);
+            // Kirim pesan WhatsApp ke customer
+            $customer_result = sendKirimiMessage($phone_number, $message);
+            
+            // Log hasil pengiriman ke customer
+            error_log("Kirimi - Pesan ke customer ($phone_number): Status " . $customer_result['status']);
+            
+            // Delay 2 detik sebelum kirim ke admin
+            sleep(2);
+            
+            // Kirim notifikasi ke admin
+            $admin_phone = '6281317975623';
+            
+            // Buat daftar produk yang dipesan
+            $product_list = "";
+            foreach ($cart_items as $item) {
+                $product_list .= "• {$item['name']} (x{$item['quantity']}) - " . format_rupiah($item['price'] * $item['quantity']) . "\n";
+            }
+            
+            $admin_message = "🔔 *PESANAN BARU MASUK!*\n\n";
+            $admin_message .= "📋 *Detail Pesanan:*\n";
+            $admin_message .= "• Nomor Pesanan: *#{$order_number}*\n";
+            $admin_message .= "• Tanggal: " . date('d/m/Y H:i') . "\n\n";
+            $admin_message .= "👤 *Data Customer:*\n";
+            $admin_message .= "• Nama: *{$user['full_name']}*\n";
+            $admin_message .= "• Telepon: {$phone}\n";
+            $admin_message .= "• Email: {$user['email']}\n\n";
+            $admin_message .= "📦 *Produk yang Dipesan:*\n";
+            $admin_message .= $product_list . "\n";
+            $admin_message .= "💰 *Total Pembayaran:*\n";
+            $admin_message .= "• Subtotal: " . format_rupiah($subtotal) . "\n";
+            $admin_message .= "• Ongkir: " . format_rupiah($shipping_cost) . "\n";
+            $admin_message .= "• *TOTAL: " . format_rupiah($total_amount) . "*\n\n";
+            $admin_message .= "💳 *Metode Pembayaran:* {$payment_text}\n\n";
+            $admin_message .= "📍 *Alamat Pengiriman:*\n";
+            $admin_message .= $shipping_address . "\n\n";
+            
+            if (!empty($notes)) {
+                $admin_message .= "📝 *Catatan:*\n";
+                $admin_message .= $notes . "\n\n";
+            }
+            
+            $admin_message .= "Segera proses pesanan ini di:\n";
+            $admin_message .= SITE_URL . "/admin/orders.php";
+            
+            $admin_result = sendKirimiMessage($admin_phone, $admin_message);
+            
+            // Log hasil pengiriman ke admin
+            error_log("Kirimi - Pesan ke admin ($admin_phone): Status " . $admin_result['status']);
+            if ($admin_result['status'] !== 200) {
+                error_log("Kirimi - Error detail: " . json_encode($admin_result));
+            }
             
             // Redirect to order success page
             header("Location: order_success.php?order_id=" . $order_id);
