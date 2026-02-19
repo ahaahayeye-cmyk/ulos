@@ -138,7 +138,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             }
             
             $message .= "📦 Estimasi pengiriman: 2-3 hari kerja\n\n";
-            $message .= "Cek status pesanan Anda di: " . SITE_URL . "orders.php\n\n";
+            $message .= "Lihat detail pesanan Anda di:\n" . SITE_URL . "order_detail.php?id=" . $order_id . "\n\n";
             $message .= "Terima kasih! 🙏";
             
             // Kirim pesan WhatsApp ke customer
