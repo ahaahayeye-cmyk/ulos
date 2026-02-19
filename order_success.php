@@ -67,6 +67,13 @@ include 'includes/header.php';
                         <p class="mb-1"><strong>Total:</strong> 
                             <span class="text-primary fw-bold"><?php echo format_rupiah($order['total_amount']); ?></span>
                         </p>
+                        <p class="mb-1"><strong>Metode Pembayaran:</strong> 
+                            <?php if (isset($order['payment_method']) && $order['payment_method'] === 'cod'): ?>
+                                <span class="badge bg-success"><i class="fas fa-money-bill-wave me-1"></i>Cash On Delivery (COD)</span>
+                            <?php else: ?>
+                                <span class="badge bg-primary"><i class="fas fa-university me-1"></i>Bank Transfer</span>
+                            <?php endif; ?>
+                        </p>
                     </div>
                     <div class="col-md-6">
                         <h6>Informasi Pengiriman</h6>
@@ -119,10 +126,56 @@ include 'includes/header.php';
         </div>
         
         <!-- Payment Instructions -->
+        <?php if (isset($order['payment_method']) && $order['payment_method'] === 'cod'): ?>
+        <!-- COD Payment Instructions -->
+        <div class="card mt-4">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-money-bill-wave"></i> Instruksi Pembayaran - Cash On Delivery (COD)
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-success">
+                    <i class="fas fa-check-circle me-2"></i>
+                    <strong>Pembayaran COD dipilih!</strong> Anda akan membayar saat barang diterima.
+                </div>
+                
+                <div class="row justify-content-center">
+                    <div class="col-md-8">
+                        <div class="border p-3 rounded bg-light">
+                            <h6 class="text-success mb-3"><i class="fas fa-info-circle me-1"></i> Yang Perlu Dipersiapkan:</h6>
+                            <ul class="mb-0">
+                                <li class="mb-2">Siapkan uang tunai sebesar <strong class="text-primary"><?php echo format_rupiah($order['total_amount']); ?></strong></li>
+                                <li class="mb-2">Pastikan Anda atau perwakilan ada di alamat pengiriman saat kurir tiba</li>
+                                <li class="mb-2">Periksa kondisi barang sebelum melakukan pembayaran</li>
+                                <li class="mb-2">Kurir akan memberikan bukti pembayaran setelah transaksi selesai</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mt-3">
+                    <h6><i class="fas fa-truck me-1"></i> Estimasi Pengiriman:</h6>
+                    <ol>
+                        <li>Pesanan akan diproses dalam <strong>1x24 jam</strong></li>
+                        <li>Estimasi pengiriman <strong>2-3 hari kerja</strong></li>
+                        <li>Kurir akan menghubungi Anda di <strong><?php echo htmlspecialchars($order['phone']); ?></strong> sebelum pengantaran</li>
+                    </ol>
+                </div>
+                
+                <div class="mt-3 text-center">
+                    <small class="text-muted">
+                        <i class="fas fa-question-circle me-1"></i> Ada pertanyaan? Hubungi kami via WhatsApp di <strong>+62 813 17975623</strong>
+                    </small>
+                </div>
+            </div>
+        </div>
+        <?php else: ?>
+        <!-- Bank Transfer Payment Instructions -->
         <div class="card mt-4">
             <div class="card-header bg-warning">
                 <h5 class="mb-0 text-dark">
-                    <i class="fas fa-credit-card"></i> Instruksi Pembayaran
+                    <i class="fas fa-university"></i> Instruksi Pembayaran - Bank Transfer
                 </h5>
             </div>
             <div class="card-body">
@@ -152,6 +205,7 @@ include 'includes/header.php';
                 </div>
             </div>
         </div>
+        <?php endif; ?>
         
         <!-- Action Buttons -->
         <div class="text-center mt-4 mb-5">

@@ -64,6 +64,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $shipping_address = clean_input($_POST['shipping_address']);
     $phone = clean_input($_POST['phone']);
     $notes = clean_input($_POST['notes']);
+    $payment_method = isset($_POST['payment_method']) && in_array($_POST['payment_method'], ['bank_transfer', 'cod']) ? $_POST['payment_method'] : 'bank_transfer';
     
     if (empty($shipping_address) || empty($phone)) {
         $error = 'Alamat pengiriman dan nomor telepon harus diisi';
@@ -72,9 +73,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $pdo->beginTransaction();
             
             // Create order
-            $stmt = $pdo->prepare("INSERT INTO orders (user_id, total_amount, shipping_address, phone, notes) 
-                                   VALUES (?, ?, ?, ?, ?)");
-            $stmt->execute([$user_id, $total_amount, $shipping_address, $phone, $notes]);
+            $stmt = $pdo->prepare("INSERT INTO orders (user_id, total_amount, shipping_address, phone, notes, payment_method) 
+                                   VALUES (?, ?, ?, ?, ?, ?)");
+            $stmt->execute([$user_id, $total_amount, $shipping_address, $phone, $notes, $payment_method]);
             $order_id = $pdo->lastInsertId();
             
             // Create order items and update stock
@@ -98,6 +99,50 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             }
             
             $pdo->commit();
+            
+            // Kirim notifikasi WhatsApp otomatis
+            require_once 'includes/kirimi_config.php';
+            
+            // Format nomor telepon (pastikan format 628xxx)
+            $phone_number = preg_replace('/[^0-9]/', '', $phone);
+            if (substr($phone_number, 0, 1) === '0') {
+                $phone_number = '62' . substr($phone_number, 1);
+            } elseif (substr($phone_number, 0, 2) !== '62') {
+                $phone_number = '62' . $phone_number;
+            }
+            
+            // Buat pesan notifikasi
+            $order_number = str_pad($order_id, 6, '0', STR_PAD_LEFT);
+            $payment_text = ($payment_method === 'cod') ? 'Cash On Delivery (COD)' : 'Bank Transfer';
+            
+            $message = "🎉 *Pesanan Berhasil Dibuat!*\n\n";
+            $message .= "Halo *{$user['full_name']}*,\n\n";
+            $message .= "Terima kasih telah berbelanja di Toko Ulos kami!\n\n";
+            $message .= "📋 *Detail Pesanan:*\n";
+            $message .= "• Nomor Pesanan: *#{$order_number}*\n";
+            $message .= "• Total Pembayaran: *" . format_rupiah($total_amount) . "*\n";
+            $message .= "• Metode Pembayaran: *{$payment_text}*\n";
+            $message .= "• Status: Menunggu Konfirmasi\n\n";
+            
+            if ($payment_method === 'cod') {
+                $message .= "💰 *Pembayaran COD*\n";
+                $message .= "Siapkan uang tunai sebesar *" . format_rupiah($total_amount) . "* saat barang diterima.\n\n";
+            } else {
+                $message .= "💳 *Instruksi Pembayaran:*\n";
+                $message .= "Transfer ke:\n";
+                $message .= "Bank Mandiri\n";
+                $message .= "No. Rek: *1070020338341*\n";
+                $message .= "A/n: *Elwina Situmorang*\n";
+                $message .= "Jumlah: *" . format_rupiah($total_amount) . "*\n\n";
+                $message .= "Kirim bukti transfer ke nomor ini dengan menyertakan nomor pesanan.\n\n";
+            }
+            
+            $message .= "📦 Estimasi pengiriman: 2-3 hari kerja\n\n";
+            $message .= "Cek status pesanan Anda di: " . SITE_URL . "orders.php\n\n";
+            $message .= "Terima kasih! 🙏";
+            
+            // Kirim pesan WhatsApp
+            sendKirimiMessage($phone_number, $message);
             
             // Redirect to order success page
             header("Location: order_success.php?order_id=" . $order_id);
@@ -179,12 +224,76 @@ include 'includes/header.php';
                     
                     <!-- Payment Method -->
                     <div class="mb-4">
-                        <h5 class="mb-3">Metode Pembayaran</h5>
-                        <div class="alert alert-info">
-                            <i class="fas fa-info-circle"></i> 
-                            Pembayaran dilakukan melalui transfer bank. Detail rekening akan diberikan setelah pesanan dikonfirmasi.
+                        <h5 class="mb-3"><i class="fas fa-wallet me-2"></i>Metode Pembayaran</h5>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <div class="card h-100 border-primary payment-option" id="card-bank-transfer" style="cursor: pointer;">
+                                    <div class="card-body text-center">
+                                        <input class="form-check-input d-none" type="radio" name="payment_method" id="payment_bank_transfer" value="bank_transfer" checked>
+                                        <i class="fas fa-university fa-2x text-primary mb-2"></i>
+                                        <h6 class="card-title mb-1">Bank Transfer</h6>
+                                        <small class="text-muted">Transfer ke rekening bank kami. Detail rekening akan ditampilkan setelah pesanan dibuat.</small>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <div class="card h-100 payment-option" id="card-cod" style="cursor: pointer;">
+                                    <div class="card-body text-center">
+                                        <input class="form-check-input d-none" type="radio" name="payment_method" id="payment_cod" value="cod">
+                                        <i class="fas fa-money-bill-wave fa-2x text-success mb-2"></i>
+                                        <h6 class="card-title mb-1">Cash On Delivery (COD)</h6>
+                                        <small class="text-muted">Bayar tunai saat barang diterima di alamat Anda.</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="info-bank-transfer" class="alert alert-info mt-2">
+                            <i class="fas fa-info-circle me-1"></i>
+                            Anda akan menerima detail rekening bank setelah pesanan dibuat. Pembayaran harus dilakukan dalam 24 jam.
+                        </div>
+                        <div id="info-cod" class="alert alert-success mt-2" style="display: none;">
+                            <i class="fas fa-info-circle me-1"></i>
+                            Siapkan uang tunai sebesar total pesanan. Pembayaran dilakukan langsung kepada kurir saat barang diterima.
                         </div>
                     </div>
+
+                    <style>
+                        .payment-option { transition: all 0.3s ease; }
+                        .payment-option:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+                        .payment-option.border-primary { border-width: 2px !important; background-color: #f0f7ff; }
+                    </style>
+
+                    <script>
+                    document.addEventListener('DOMContentLoaded', function() {
+                        const cardBankTransfer = document.getElementById('card-bank-transfer');
+                        const cardCod = document.getElementById('card-cod');
+                        const radioBankTransfer = document.getElementById('payment_bank_transfer');
+                        const radioCod = document.getElementById('payment_cod');
+                        const infoBankTransfer = document.getElementById('info-bank-transfer');
+                        const infoCod = document.getElementById('info-cod');
+
+                        function selectPayment(method) {
+                            if (method === 'bank_transfer') {
+                                radioBankTransfer.checked = true;
+                                cardBankTransfer.classList.add('border-primary');
+                                cardCod.classList.remove('border-primary');
+                                infoBankTransfer.style.display = 'block';
+                                infoCod.style.display = 'none';
+                            } else {
+                                radioCod.checked = true;
+                                cardCod.classList.add('border-primary');
+                                cardBankTransfer.classList.remove('border-primary');
+                                infoCod.style.display = 'block';
+                                infoBankTransfer.style.display = 'none';
+                            }
+                        }
+
+                        cardBankTransfer.addEventListener('click', function() { selectPayment('bank_transfer'); });
+                        cardCod.addEventListener('click', function() { selectPayment('cod'); });
+                    });
+                    </script>
                     
                     <div class="d-flex justify-content-between">
                         <a href="cart.php" class="btn btn-outline-secondary">

@@ -89,6 +89,13 @@ include 'includes/header.php';
                         <p class="mb-1"><strong>Total Pembayaran:</strong> 
                             <span class="text-primary fw-bold"><?php echo format_rupiah($order['total_amount']); ?></span>
                         </p>
+                        <p class="mb-1"><strong>Metode Pembayaran:</strong> 
+                            <?php if (isset($order['payment_method']) && $order['payment_method'] === 'cod'): ?>
+                                <span class="badge bg-success"><i class="fas fa-money-bill-wave me-1"></i>Cash On Delivery (COD)</span>
+                            <?php else: ?>
+                                <span class="badge bg-primary"><i class="fas fa-university me-1"></i>Bank Transfer</span>
+                            <?php endif; ?>
+                        </p>
                     </div>
                     <div class="col-md-6">
                         <h6>Informasi Pengiriman</h6>
@@ -224,23 +231,45 @@ include 'includes/header.php';
         
         <!-- Payment Info -->
         <?php if ($order['status'] == 'pending'): ?>
-        <div class="card mt-3">
-            <div class="card-header bg-warning">
-                <h6 class="mb-0 text-dark">
-                    <i class="fas fa-exclamation-triangle"></i> Menunggu Pembayaran
-                </h6>
-            </div>
-            <div class="card-body">
-                <p class="small mb-2">Silakan lakukan pembayaran ke rekening berikut:</p>
-                <div class="border p-2 rounded mb-3">
-                    <strong>Bank Mandiri</strong><br>
-                    <small>1070020338341 - Elwina Situmorang</small>
+            <?php if (isset($order['payment_method']) && $order['payment_method'] === 'cod'): ?>
+            <!-- COD Payment Info -->
+            <div class="card mt-3">
+                <div class="card-header bg-success text-white">
+                    <h6 class="mb-0">
+                        <i class="fas fa-money-bill-wave"></i> Cash On Delivery (COD)
+                    </h6>
                 </div>
-                <p class="small text-muted">
-                    Setelah transfer, kirim bukti pembayaran via WhatsApp ke +62 813 17975623
-                </p>
+                <div class="card-body">
+                    <p class="small mb-2"><strong>Pembayaran dilakukan saat barang diterima.</strong></p>
+                    <ul class="small mb-2">
+                        <li>Siapkan uang tunai sebesar <strong><?php echo format_rupiah($order['total_amount']); ?></strong></li>
+                        <li>Kurir akan menghubungi Anda sebelum pengantaran</li>
+                    </ul>
+                    <p class="small text-muted mb-0">
+                        <i class="fas fa-info-circle me-1"></i> Pesanan sedang menunggu diproses oleh admin.
+                    </p>
+                </div>
             </div>
-        </div>
+            <?php else: ?>
+            <!-- Bank Transfer Payment Info -->
+            <div class="card mt-3">
+                <div class="card-header bg-warning">
+                    <h6 class="mb-0 text-dark">
+                        <i class="fas fa-university"></i> Menunggu Pembayaran
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <p class="small mb-2">Silakan lakukan pembayaran ke rekening berikut:</p>
+                    <div class="border p-2 rounded mb-3">
+                        <strong>Bank Mandiri</strong><br>
+                        <small>1070020338341 - Elwina Situmorang</small>
+                    </div>
+                    <p class="small text-muted">
+                        Setelah transfer, kirim bukti pembayaran via WhatsApp ke +62 813 17975623
+                    </p>
+                </div>
+            </div>
+            <?php endif; ?>
         <?php endif; ?>
         
         <!-- Contact Info -->

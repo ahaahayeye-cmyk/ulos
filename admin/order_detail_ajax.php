@@ -67,6 +67,16 @@ $order_items = $stmt->fetchAll();
                 <td><strong>Total:</strong></td>
                 <td class="fw-bold text-primary"><?php echo format_rupiah($order['total_amount']); ?></td>
             </tr>
+            <tr>
+                <td><strong>Pembayaran:</strong></td>
+                <td>
+                    <?php if (isset($order['payment_method']) && $order['payment_method'] === 'cod'): ?>
+                        <span class="badge bg-success"><i class="fas fa-money-bill-wave me-1"></i>Cash On Delivery (COD)</span>
+                    <?php else: ?>
+                        <span class="badge bg-primary"><i class="fas fa-university me-1"></i>Bank Transfer</span>
+                    <?php endif; ?>
+                </td>
+            </tr>
         </table>
     </div>
     

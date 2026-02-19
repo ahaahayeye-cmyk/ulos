@@ -50,6 +50,7 @@ include 'includes/header.php';
                             <th>No. Pesanan</th>
                             <th>Tanggal</th>
                             <th>Total</th>
+                            <th>Pembayaran</th>
                             <th>Status</th>
                             <th>Aksi</th>
                         </tr>
@@ -62,6 +63,13 @@ include 'includes/header.php';
                             </td>
                             <td><?php echo date('d/m/Y H:i', strtotime($order['created_at'])); ?></td>
                             <td class="fw-bold text-primary"><?php echo format_rupiah($order['total_amount']); ?></td>
+                            <td>
+                                <?php if (isset($order['payment_method']) && $order['payment_method'] === 'cod'): ?>
+                                    <span class="badge bg-success"><i class="fas fa-money-bill-wave me-1"></i>COD</span>
+                                <?php else: ?>
+                                    <span class="badge bg-primary"><i class="fas fa-university me-1"></i>Transfer</span>
+                                <?php endif; ?>
+                            </td>
                             <td>
                                 <?php
                                 $status_class = '';

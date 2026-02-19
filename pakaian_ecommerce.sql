@@ -100,6 +100,7 @@ CREATE TABLE `orders` (
   `shipping_address` text NOT NULL,
   `phone` varchar(20) NOT NULL,
   `notes` text DEFAULT NULL,
+  `payment_method` enum('bank_transfer','cod') NOT NULL DEFAULT 'bank_transfer',
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   PRIMARY KEY (`id`),
   KEY `user_id` (`user_id`),
@@ -108,10 +109,10 @@ CREATE TABLE `orders` (
 
 /*Data for the table `orders` */
 
-insert  into `orders`(`id`,`user_id`,`total_amount`,`status`,`shipping_address`,`phone`,`notes`,`created_at`) values 
-(1,1,665000.00,'delivered','Jl.sadar','08887863852','cepat','2025-09-10 21:44:10'),
-(2,3,1165000.00,'processing','Jalan Siswa','08887863852','Oke','2025-09-10 21:56:23'),
-(3,3,265000.00,'delivered','Jalan Siswa','08887863852','Bayar di tempat','2025-09-10 22:47:00');
+insert  into `orders`(`id`,`user_id`,`total_amount`,`status`,`shipping_address`,`phone`,`notes`,`payment_method`,`created_at`) values 
+(1,1,665000.00,'delivered','Jl.sadar','08887863852','cepat','bank_transfer','2025-09-10 21:44:10'),
+(2,3,1165000.00,'processing','Jalan Siswa','08887863852','Oke','bank_transfer','2025-09-10 21:56:23'),
+(3,3,265000.00,'delivered','Jalan Siswa','08887863852','Bayar di tempat','bank_transfer','2025-09-10 22:47:00');
 
 /*Table structure for table `product_images` */
 
